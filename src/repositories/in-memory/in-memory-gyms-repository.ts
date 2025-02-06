@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto'
+import { getDistanceBetweenCoordinates } from '@/utils/get-distance-between-coordinates'
 import type { Gym, Prisma } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime/library'
-import type { GymsRepository } from '../gyms-repository'
+import type { FindManyNearbyParams, GymsRepository } from '../gyms-repository'
 
 export class InMemoryGymsRepository implements GymsRepository {
 	public items: Gym[] = []
@@ -35,5 +36,59 @@ export class InMemoryGymsRepository implements GymsRepository {
 		return this.items
 			.filter((item) => item.title.includes(query))
 			.slice((page - 1) * 20, page * 20)
+	}
+
+	async findManyNearby(params: FindManyNearbyParams): Promise<Gym[]> {
+		return this.items
+			.filter((item) => {
+				const distance = getDistanceBetweenCoordinates(
+					{
+						latitude: params.latitude,
+						longitude: params.longitude,
+					},
+					{
+						latitude: item.latitude.toNumber(),
+						longitude: item.longitude.toNumber(),
+					},
+				)
+
+				return distance < 10
+			})
+			.slice(0, 20)
+			.sort((a, b) => {
+				const distanceA = getDistanceBetweenCoordinates(
+					{
+						latitude: params.latitude,
+						longitude: params.longitude,
+					},
+					{
+						latitude: a.latitude.toNumber(),
+						longitude: a.longitude.toNumber(),
+					},
+				)
+
+				const distanceB = getDistanceBetweenCoordinates(
+					{
+						latitude: params.latitude,
+						longitude: params.longitude,
+					},
+					{
+						latitude: b.latitude.toNumber(),
+						longitude: b.longitude.toNumber(),
+					},
+				)
+
+				if (distanceA < distanceB) {
+					return -1
+					// biome-ignore lint/style/noUselessElse: <explanation>
+				} else {
+					if (distanceA > distanceB) {
+						return 1
+						// biome-ignore lint/style/noUselessElse: <explanation>
+					} else {
+						return 0
+					}
+				}
+			})
 	}
 }

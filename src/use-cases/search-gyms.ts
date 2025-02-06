@@ -6,12 +6,12 @@ import { MaxDistanceError } from './errors/max-distance-error'
 import { MaxNumberOfCheckInsError } from './errors/max-number-of-check-ins-error'
 import { ResourceNotFoundError } from './errors/resource-not-found-error'
 
-interface CheckInUseCaseRequest {
+interface SearchGymUseCaseRequest {
 	query: string
 	page: number
 }
 
-interface CheckInUseCaseResponse {
+interface SearchGymUseCaseResponse {
 	gyms: Gym[]
 }
 
@@ -21,7 +21,7 @@ export class SearchGymsUseCase {
 	async execute({
 		query,
 		page,
-	}: CheckInUseCaseRequest): Promise<CheckInUseCaseResponse> {
+	}: SearchGymUseCaseRequest): Promise<SearchGymUseCaseResponse> {
 		const gyms = await this.gymsRepository.searchMany(query, page)
 
 		return {
