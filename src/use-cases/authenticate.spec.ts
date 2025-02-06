@@ -1,11 +1,8 @@
-import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository'
-import { describe, expect, it } from 'vitest'
-import { RegisterUseCase } from './register'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository'
 import { AuthenticateUseCase } from './authenticate'
 import { hash } from 'bcryptjs'
 import { InvalidCredentialsError } from './errors/invalid-credentials-error'
-import { beforeEach } from 'node:test'
 
 // Unit Tests
 
@@ -41,6 +38,7 @@ describe('Authenticate Use Case', () => {
     })
 
     it('should not be able to authenticate with wrong password', async () => {
+        console.log(usersRepository)
         await usersRepository.create({
             name: 'John Doe',  
             email: 'johndoe@example.com',
